@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f6f50">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>Buku Kondangan</title>
+<style>
+:root{--g:#1f6f50;--g2:#e3f1ea;--bg:#f4f1ea;--card:#fff;--tx:#1d2420;--mut:#6b756f;--red:#b3261e;--line:#e2ded3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font:16px/1.4 system-ui,sans-serif;background:var(--bg);color:var(--tx);padding-bottom:90px}
+header{position:sticky;top:0;z-index:5;background:var(--g);color:#fff;padding:10px 12px calc(10px) 12px}
+header .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+header h1{font-size:18px;margin:0}
+header button.ghost{background:transparent;color:#fff;border:1px solid #ffffff66;border-radius:8px;padding:4px 10px;font-size:13px}
+#q{width:100%;padding:13px 14px;font-size:18px;border:0;border-radius:12px;outline:none}
+.sum{display:flex;gap:8px;padding:10px 12px;overflow-x:auto}
+.sum div{flex:1;min-width:104px;background:var(--card);border-radius:12px;padding:8px 10px;border:1px solid var(--line)}
+.sum small{color:var(--mut);display:block;font-size:12px}
+.sum b{font-size:15px}
+.list{padding:0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.card .n{font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:8px}
+.card .a{color:var(--mut);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{background:var(--g2);color:#124b35;border-radius:999px;padding:3px 10px;font-size:14px}
+.chip.u{background:#fff3d6;color:#6b4a00}
+.match{font-size:12px;color:var(--mut);font-weight:400}
+.empty{text-align:center;color:var(--mut);padding:40px 16px}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));background:var(--g);color:#fff;border:0;border-radius:999px;padding:16px 22px;font-size:17px;font-weight:600;box-shadow:0 4px 14px #0004}
+dialog{border:0;border-radius:18px;padding:0;width:min(94vw,440px);max-height:92vh}
+dialog::backdrop{background:#0007}
+.dlg{padding:16px}
+.dlg h2{margin:0 0 10px;font-size:19px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 3px}
+input,textarea,select{width:100%;padding:11px;font-size:16px;border:1px solid var(--line);border-radius:10px;font-family:inherit;background:#fff}
+.sm{font-size:13px;color:var(--mut);margin:0 0 8px}.sm a{color:var(--g);text-decoration:underline;cursor:pointer}
+.map{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+header .acts{display:flex;gap:6px}
+.row{display:flex;gap:8px}.row>div{flex:1}
+.btns{display:flex;gap:8px;margin-top:16px}
+.btns button{flex:1;padding:13px;border-radius:12px;border:0;font-size:16px;font-weight:600}
+.pri{background:var(--g);color:#fff}.sec{background:#e9e6dd;color:var(--tx)}.dan{background:#fbe4e2;color:var(--red)}
+.hint{background:#fff3d6;border-radius:10px;padding:8px 10px;font-size:14px;margin-top:6px}
+.hint a{color:#6b4a00;text-decoration:underline;display:inline-block;margin-right:10px}
+.big{font-size:15px;line-height:1.7}
+.big b{font-size:19px}
+#login{max-width:380px;margin:12vh auto;padding:20px}
+#login h1{color:var(--g)}
+#err{color:var(--red);font-size:14px;min-height:20px}
+#stat{position:fixed;left:12px;bottom:calc(22px + env(safe-area-inset-bottom));font-size:12px;color:var(--mut);background:#ffffffcc;padding:3px 8px;border-radius:8px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<section id="login" class="hidden">
+  <h1>Buku Kondangan</h1>
+  <p>Masuk dulu supaya data aman.</p>
+  <label>Email</label><input id="em" type="email" autocomplete="username">
+  <label>Password</label><input id="pw" type="password" autocomplete="current-password">
+  <div id="err"></div>
+  <div class="btns"><button class="pri" id="btnLogin">Masuk</button></div>
+</section>
+
+<section id="app" class="hidden">
+  <header>
+    <div class="top"><h1>📖 Buku Kondangan</h1><div class="acts"><button class="ghost" id="btnImp">Impor</button><button class="ghost" id="btnOut">Keluar</button></div></div>
+    <input id="q" type="search" placeholder="Cari nama / kampung… (typo boleh)" autocomplete="off">
+  </header>
+  <div class="sum" id="sum"></div>
+  <div class="list" id="list"></div>
+  <span id="stat"></span>
+  <button class="fab" id="btnAdd">＋ Catat</button>
+</section>
+
+<dialog id="dForm"><div class="dlg">
+  <h2 id="fTitle">Catat kondangan</h2>
+  <label>Nama</label><input id="fNama" autocomplete="off">
+  <div id="fHint"></div>
+  <label>Alamat / kampung / RT</label><input id="fAlamat" autocomplete="off">
+  <div class="row">
+    <div><label>Beras (kg)</label><input id="fBeras" type="number" inputmode="decimal" step="0.5" min="0"></div>
+    <div><label>Uang (Rp)</label><input id="fUang" type="number" inputmode="numeric" min="0"></div>
+  </div>
+  <label>Jajanan / barang lain</label><input id="fJajan" autocomplete="off" placeholder="mis. 1 dus wafer, 2 kg gula">
+  <label>Catatan</label><textarea id="fCat" rows="2"></textarea>
+  <label>Hajatan</label><input id="fHaj">
+  <div class="btns"><button class="sec" id="fCancel">Batal</button><button class="pri" id="fSave">Simpan</button></div>
+</div></dialog>
+
+<dialog id="dView"><div class="dlg" id="vBody"></div></dialog>
+
+<dialog id="dImp"><div class="dlg">
+  <h2>Impor dari CSV / Excel</h2>
+  <p class="sm">Baris pertama harus berisi judul kolom (nama, alamat, beras, jajanan, uang, ...). <a id="impTpl">Unduh contoh CSV</a></p>
+  <input id="impFile" type="file" accept=".csv,.xlsx,.xls,text/csv">
+  <div id="impMap" class="hidden"></div>
+  <label>Nama hajatan (dipakai bila kolomnya tidak ada)</label><input id="impHaj">
+  <label style="display:flex;gap:8px;align-items:center;color:var(--tx);font-size:14px"><input type="checkbox" id="impSkip" checked style="width:auto"> Lewati yang sudah ada (nama + alamat sama)</label>
+  <div id="impSum" class="hint hidden"></div>
+  <div class="btns"><button class="sec" id="impCancel">Batal</button><button class="pri" id="impGo" disabled>Impor</button></div>
+</div></dialog>
+
+<script src="config.js"></script>
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const CFG = window.CFG;
+const LS = localStorage;
+const rp = (n) => "Rp " + (Number(n) || 0).toLocaleString("id-ID");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ---------- Pencarian toleran typo ---------- */
+function norm(s) {
+  return String(s || "").toLowerCase()
+    .replace(/dj/g, "j").replace(/tj/g, "c").replace(/oe/g, "u").replace(/sj/g, "sy")
+    .replace(/kh/g, "h").replace(/ph/g, "f").replace(/ch/g, "c")
+    .replace(/[^a-z\s]/g, " ").replace(/(.)\1+/g, "$1").replace(/\s+/g, " ").trim();
+}
+function skel(w) { // kerangka konsonan: tahan salah baca huruf vokal (a/o/e, i/l, dst.)
+  return w.replace(/[aeiou]/g, "").replace(/y/g, "").replace(/w/g, "").replace(/(.)\1+/g, "$1");
+}
+function lev(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++)
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+const sim = (a, b) => (a && b) ? 1 - lev(a, b) / Math.max(a.length, b.length) : 0;
+function tokSim(qt, rt) {
+  let s = sim(qt, rt);
+  if (qt.length >= 2 && rt.startsWith(qt)) s = Math.max(s, 0.92);
+  const qs = skel(qt), rs = skel(rt);
+  if (qs.length >= 2 && rs.length >= 2) s = Math.max(s, sim(qs, rs) * 0.88);
+  return s;
+}
+function prep(r) {
+  r._n = norm(r.nama).split(" ").filter(Boolean);
+  r._a = norm(r.alamat).split(" ").filter(Boolean);
+  return r;
+}
+function score(qTokens, r) {
+  if (!qTokens.length) return 0;
+  let total = 0;
+  for (const qt of qTokens) {
+    let best = 0;
+    for (const t of r._n) best = Math.max(best, tokSim(qt, t));
+    for (const t of r._a) best = Math.max(best, tokSim(qt, t) * 0.85);
+    total += best;
+  }
+  return total / qTokens.length;
+}
+function search(q, list, min = 0.55) {
+  const qt = norm(q).split(" ").filter(Boolean);
+  if (!qt.length) return [];
+  return list.map((r) => ({ r, s: score(qt, r) })).filter((x) => x.s >= min).sort((a, b) => b.s - a.s);
+}
+
+/* ---------- Supabase (tanpa library, ringan) ---------- */
+let session = JSON.parse(LS.getItem("kd_sess") || "null");
+let rows = JSON.parse(LS.getItem("kd_rows") || "[]").map(prep);
+
+async function auth(path, body) {
+  const res = await fetch(CFG.SUPABASE_URL + "/auth/v1/" + path, {
+    method: "POST", headers: { apikey: CFG.SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  const j = await res.json();
+  if (!res.ok) throw new Error(j.error_description || j.msg || "Gagal masuk");
+  return j;
+}
+function saveSess(j) { session = { access: j.access_token, refresh: j.refresh_token }; LS.setItem("kd_sess", JSON.stringify(session)); }
+async function refresh() {
+  const j = await auth("token?grant_type=refresh_token", { refresh_token: session.refresh });
+  saveSess(j);
+}
+async function api(path, opt = {}, retry = true) {
+  const res = await fetch(CFG.SUPABASE_URL + "/rest/v1/" + path, {
+    ...opt,
+    headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: "Bearer " + session.access, "Content-Type": "application/json", Prefer: "return=representation", ...(opt.headers || {}) }
+  });
+  if (res.status === 401 && retry && session?.refresh) { await refresh(); return api(path, opt, false); }
+  if (!res.ok) throw new Error((await res.text()) || res.status);
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+async function sync() {
+  setStat("Sinkron…");
+  try {
+    const data = await api("kondangan?select=*&order=created_at.desc&limit=10000");
+    rows = data.map(prep);
+    LS.setItem("kd_rows", JSON.stringify(data));
+    setStat("");
+  } catch (e) {
+    setStat(navigator.onLine ? "Gagal sinkron" : "Offline (data tersimpan)");
+  }
+  render();
+}
+function setStat(t) { $("#stat").textContent = t; }
+
+/* ---------- Tampilan ---------- */
+function card(r, s) {
+  const chips = [];
+  if (+r.beras_kg) chips.push(`<span class="chip">🌾 ${+r.beras_kg} kg</span>`);
+  if (r.jajanan) chips.push(`<span class="chip">🍪 ${esc(r.jajanan)}</span>`);
+  if (+r.uang) chips.push(`<span class="chip u">💰 ${rp(r.uang)}</span>`);
+  if (!chips.length) chips.push(`<span class="chip">— belum ada isi —</span>`);
+  const m = s != null && s < 0.95 ? `<span class="match">mirip ${Math.round(s * 100)}%</span>` : "";
+  return `<div class="card" data-id="${r.id}">
+    <div class="n"><span>${esc(r.nama)}</span>${m}</div>
+    <div class="a">${esc(r.alamat || "")}${r.hajatan ? " · " + esc(r.hajatan) : ""}</div>
+    <div class="chips">${chips.join("")}</div></div>`;
+}
+function render() {
+  const q = $("#q").value.trim();
+  const tot = rows.reduce((a, r) => ({ b: a.b + (+r.beras_kg || 0), u: a.u + (+r.uang || 0) }), { b: 0, u: 0 });
+  $("#sum").innerHTML = `<div><small>Tamu</small><b>${rows.length}</b></div><div><small>Total beras</small><b>${tot.b.toLocaleString("id-ID")} kg</b></div><div><small>Total uang</small><b>${rp(tot.u)}</b></div>`;
+  let html;
+  if (q) {
+    const res = search(q, rows);
+    html = res.length ? res.slice(0, 40).map((x) => card(x.r, x.s)).join("")
+      : `<div class="empty">Tidak ketemu “${esc(q)}”.<br>Coba ejaan lain atau nama kampungnya.</div>`;
+  } else {
+    html = rows.length ? rows.slice(0, 60).map((r) => card(r)).join("") + (rows.length > 60 ? `<div class="empty">Ketik nama untuk mencari ${rows.length - 60} lainnya…</div>` : "")
+      : `<div class="empty">Belum ada catatan.<br>Tekan “＋ Catat”.</div>`;
+  }
+  $("#list").innerHTML = html;
+}
+$("#list").addEventListener("click", (e) => {
+  const c = e.target.closest(".card"); if (c) openView(c.dataset.id);
+});
+let tq; $("#q").addEventListener("input", () => { clearTimeout(tq); tq = setTimeout(render, 120); });
+
+function openView(id) {
+  const r = rows.find((x) => x.id === id); if (!r) return;
+  const lines = [];
+  lines.push(`🌾 Beras: <b>${+r.beras_kg ? (+r.beras_kg) + " kg" : "-"}</b>`);
+  lines.push(`🍪 Jajanan: <b>${esc(r.jajanan || "-")}</b>`);
+  lines.push(`💰 Uang: <b>${+r.uang ? rp(r.uang) : "-"}</b>`);
+  $("#vBody").innerHTML = `<h2>${esc(r.nama)}</h2>
+    <div class="a" style="color:var(--mut)">${esc(r.alamat || "")} ${r.hajatan ? "· " + esc(r.hajatan) : ""}</div>
+    <p style="margin:12px 0 4px;color:var(--mut);font-size:13px">Dulu dia membawa:</p>
+    <div class="big">${lines.join("<br>")}</div>
+    ${r.catatan ? `<p style="color:var(--mut)">📝 ${esc(r.catatan)}</p>` : ""}
+    <div class="btns"><button class="dan" id="vDel">Hapus</button><button class="sec" id="vEdit">Ubah</button><button class="pri" id="vClose">Tutup</button></div>`;
+  $("#dView").showModal();
+  $("#vClose").onclick = () => $("#dView").close();
+  $("#vEdit").onclick = () => { $("#dView").close(); openForm(r); };
+  $("#vDel").onclick = async () => {
+    if (!confirm("Hapus catatan " + r.nama + "?")) return;
+    try { await api("kondangan?id=eq." + r.id, { method: "DELETE" }); $("#dView").close(); await sync(); }
+    catch (e) { alert("Gagal hapus: " + e.message); }
+  };
+}
+
+/* ---------- Form entri ---------- */
+let editing = null;
+function openForm(r) {
+  editing = r || null;
+  $("#fTitle").textContent = r ? "Ubah catatan" : "Catat kondangan";
+  $("#fNama").value = r?.nama || ""; $("#fAlamat").value = r?.alamat || "";
+  $("#fBeras").value = r ? +r.beras_kg || "" : ""; $("#fUang").value = r ? +r.uang || "" : "";
+  $("#fJajan").value = r?.jajanan || ""; $("#fCat").value = r?.catatan || "";
+  $("#fHaj").value = r?.hajatan || LS.getItem("kd_haj") || "Hajatan " + new Date().getFullYear();
+  $("#fHint").innerHTML = "";
+  $("#dForm").showModal();
+  setTimeout(() => $("#fNama").focus(), 50);
+}
+$("#btnAdd").onclick = () => openForm(null);
+$("#fCancel").onclick = () => $("#dForm").close();
+$("#fNama").addEventListener("input", () => {
+  const v = $("#fNama").value;
+  if (norm(v).length < 3) { $("#fHint").innerHTML = ""; return; }
+  const sug = search(v, rows.filter((r) => !editing || r.id !== editing.id), 0.75).slice(0, 3);
+  $("#fHint").innerHTML = sug.length
+    ? `<div class="hint">Sudah ada yang mirip: ` + sug.map((x) => `<a data-id="${x.r.id}">${esc(x.r.nama)}</a>`).join("") + `</div>` : "";
+});
+$("#fHint").addEventListener("click", (e) => {
+  const a = e.target.closest("a"); if (!a) return;
+  $("#dForm").close(); openView(a.dataset.id);
+});
+$("#fSave").onclick = async () => {
+  const nama = $("#fNama").value.trim();
+  if (!nama) { $("#fNama").focus(); return; }
+  const body = {
+    nama, alamat: $("#fAlamat").value.trim() || null,
+    beras_kg: parseFloat($("#fBeras").value) || 0, uang: parseInt($("#fUang").value, 10) || 0,
+    jajanan: $("#fJajan").value.trim() || null, catatan: $("#fCat").value.trim() || null,
+    hajatan: $("#fHaj").value.trim() || "Hajatan"
+  };
+  LS.setItem("kd_haj", body.hajatan);
+  $("#fSave").disabled = true;
+  try {
+    if (editing) await api("kondangan?id=eq." + editing.id, { method: "PATCH", body: JSON.stringify(body) });
+    else await api("kondangan", { method: "POST", body: JSON.stringify(body) });
+    $("#dForm").close(); await sync();
+  } catch (e) { alert("Gagal simpan (cek koneksi): " + e.message); }
+  $("#fSave").disabled = false;
+};
+
+/* ---------- Impor CSV / Excel ---------- */
+const FIELDS = [["nama", "Nama *"], ["alamat", "Alamat"], ["beras", "Beras"], ["jajanan", "Jajanan"], ["uang", "Uang"], ["catatan", "Catatan"], ["hajatan", "Hajatan"]];
+const ALIAS = { nama: ["nama", "name", "tamu"], alamat: ["alamat", "kampung", "desa", "asal", "rt"], beras: ["beras", "kg"], jajanan: ["jajan", "barang", "kue"], uang: ["uang", "amplop", "nominal", "duit", "rp"], catatan: ["catatan", "ket", "note"], hajatan: ["hajatan", "acara"] };
+
+function parseCSV(t) {
+  t = t.replace(/^﻿/, "");
+  const first = t.split(/\r?\n/, 1)[0];
+  const d = [",", ";", "\t"].map((c) => [c, first.split(c).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const out = []; let row = [], f = "", q = false;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === d) { row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && t[i + 1] === "\n") i++; row.push(f); f = ""; out.push(row); row = []; }
+    else f += c;
+  }
+  if (f !== "" || row.length) { row.push(f); out.push(row); }
+  return out.filter((r) => r.some((x) => String(x).trim()));
+}
+function parseUang(v) {
+  v = String(v ?? "").toLowerCase().replace(/rp\.?/g, "").trim();
+  if (!v) return 0;
+  const m = v.match(/^([\d.,]+)\s*(rb|ribu|k)$/);
+  if (m) return Math.round(parseFloat(m[1].replace(",", ".")) * 1000) || 0;
+  v = v.replace(/[,.]00(?!\d)/g, "");
+  return parseInt(v.replace(/[^\d]/g, ""), 10) || 0;
+}
+function parseBeras(v) {
+  return parseFloat(String(v ?? "").replace(",", ".").replace(/[^\d.]/g, "")) || 0;
+}
+function autoMap(head) {
+  const map = {}, used = new Set();
+  const hs = head.map((h) => String(h).toLowerCase().replace(/[^a-z]/g, ""));
+  for (const [f] of FIELDS) {
+    const i = hs.findIndex((h, k) => !used.has(k) && h && ALIAS[f].some((a) => h.includes(a)));
+    map[f] = i; if (i >= 0) used.add(i);
+  }
+  return map;
+}
+/* -- bagian layar impor -- */
+let imp = { head: [], data: [], map: {}, items: [] };
+function loadXLSX() {
+  return window.XLSX ? Promise.resolve() : new Promise((ok, no) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.mini.min.js";
+    s.onload = ok;
+    s.onerror = () => no(new Error("Gagal memuat pembaca Excel (butuh internet). Simpan file sebagai CSV lalu coba lagi."));
+    document.head.appendChild(s);
+  });
+}
+function refreshImp() {
+  const sum = $("#impSum"), go = $("#impGo");
+  if (!imp.data.length) { go.disabled = true; go.textContent = "Impor"; return; }
+  const g = (r, f) => { const i = imp.map[f]; return i >= 0 ? String(r[i] ?? "").trim() : ""; };
+  const haj = $("#impHaj").value.trim() || "Hajatan";
+  const exist = new Set(rows.map((r) => norm(r.nama) + "|" + norm(r.alamat)));
+  let noName = 0; const items = [];
+  for (const r of imp.data) {
+    const nama = g(r, "nama"); if (!nama) { noName++; continue; }
+    const alamat = g(r, "alamat");
+    items.push({
+      nama, alamat: alamat || null, beras_kg: parseBeras(g(r, "beras")), jajanan: g(r, "jajanan") || null,
+      uang: parseUang(g(r, "uang")), catatan: g(r, "catatan") || null, hajatan: g(r, "hajatan") || haj,
+      _dup: exist.has(norm(nama) + "|" + norm(alamat))
+    });
+  }
+  imp.items = items;
+  const skip = $("#impSkip").checked, dup = items.filter((x) => x._dup).length;
+  const ready = skip ? items.length - dup : items.length;
+  const prev = items.slice(0, 3).map((x) => `${esc(x.nama)}${x.alamat ? " (" + esc(x.alamat) + ")" : ""} — ${x.beras_kg ? x.beras_kg + " kg, " : ""}${rp(x.uang)}`).join("<br>");
+  sum.className = "hint";
+  sum.innerHTML = `<b>${items.length}</b> baris terbaca · ${dup} sudah ada${skip ? " (dilewati)" : ""}${noName ? " · " + noName + " tanpa nama (diabaikan)" : ""}<br><span style="color:var(--mut)">Contoh:</span><br>${prev || "—"}`;
+  go.disabled = ready === 0; go.textContent = ready ? "Impor " + ready + " baris" : "Tidak ada yang diimpor";
+}
+function resetImp() {
+  imp = { head: [], data: [], map: {}, items: [] };
+  $("#impFile").value = ""; $("#impMap").className = "hidden"; $("#impMap").innerHTML = "";
+  $("#impSum").className = "hint hidden"; $("#impGo").disabled = true; $("#impGo").textContent = "Impor";
+  $("#impHaj").value = LS.getItem("kd_haj") || "Hajatan " + new Date().getFullYear();
+}
+$("#btnImp").onclick = () => { resetImp(); $("#dImp").showModal(); };
+$("#impCancel").onclick = () => $("#dImp").close();
+$("#impTpl").onclick = () => {
+  const t = "﻿nama;alamat;beras_kg;jajanan;uang;catatan;hajatan\nSutrisno;Kp Rawa;2.5;1 dus wafer;50000;;Hajatan 2026\nSiti Aminah;RT 03;5;;100000;titipan anaknya;Hajatan 2026\n";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([t], { type: "text/csv" })); a.download = "contoh-kondangan.csv"; a.click();
+};
+$("#impFile").addEventListener("change", async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const sum = $("#impSum");
+  try {
+    let table;
+    if (/\.xlsx?$/i.test(f.name)) {
+      sum.className = "hint"; sum.textContent = "Membaca Excel…";
+      await loadXLSX();
+      const wb = XLSX.read(await f.arrayBuffer(), { type: "array" });
+      table = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: "" });
+    } else table = parseCSV(await f.text());
+    table = table.filter((r) => r.some((x) => String(x).trim()));
+    if (table.length < 2) throw new Error("File kosong atau hanya berisi judul kolom.");
+    imp.head = table[0].map((x) => String(x).trim()); imp.data = table.slice(1); imp.map = autoMap(imp.head);
+    $("#impMap").className = "map";
+    $("#impMap").innerHTML = FIELDS.map(([k, l]) => `<div><label>${l}</label><select data-f="${k}"><option value="-1">— tidak ada —</option>` +
+      imp.head.map((h, i) => `<option value="${i}"${imp.map[k] === i ? " selected" : ""}>${esc(h) || "(kolom " + (i + 1) + ")"}</option>`).join("") + `</select></div>`).join("");
+    refreshImp();
+  } catch (err) {
+    imp.data = []; $("#impMap").className = "hidden";
+    sum.className = "hint"; sum.textContent = "⚠ " + err.message; $("#impGo").disabled = true;
+  }
+});
+$("#impMap").addEventListener("change", (e) => { const s = e.target.closest("select"); if (s) { imp.map[s.dataset.f] = +s.value; refreshImp(); } });
+$("#impSkip").addEventListener("change", refreshImp);
+$("#impHaj").addEventListener("input", refreshImp);
+$("#impGo").onclick = async () => {
+  const ready = imp.items.filter((x) => !($("#impSkip").checked && x._dup)).map(({ _dup, ...r }) => r);
+  if (!ready.length) return;
+  $("#impGo").disabled = true;
+  try {
+    for (let i = 0; i < ready.length; i += 200) {
+      $("#impGo").textContent = `Mengunggah ${Math.min(i + 200, ready.length)}/${ready.length}…`;
+      await api("kondangan", { method: "POST", body: JSON.stringify(ready.slice(i, i + 200)), headers: { Prefer: "return=minimal" } });
+    }
+    $("#dImp").close(); await sync(); alert(ready.length + " catatan berhasil diimpor.");
+  } catch (err) {
+    alert("Impor terhenti: " + err.message + "\nSebagian mungkin sudah masuk. Buka Impor lagi dengan file yang sama; yang sudah ada akan dilewati.");
+    await sync(); refreshImp();
+  }
+};
+
+/* ---------- Login ---------- */
+function show() {
+  const on = !!session;
+  $("#login").classList.toggle("hidden", on);
+  $("#app").classList.toggle("hidden", !on);
+  if (on) { render(); sync(); }
+}
+$("#btnLogin").onclick = async () => {
+  $("#err").textContent = "";
+  try { saveSess(await auth("token?grant_type=password", { email: $("#em").value.trim(), password: $("#pw").value })); show(); }
+  catch (e) { $("#err").textContent = e.message; }
+};
+$("#btnOut").onclick = () => { if (confirm("Keluar?")) { session = null; LS.removeItem("kd_sess"); show(); } };
+window.addEventListener("online", () => session && sync());
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+show();
+</script>
+</body>
+</html>
