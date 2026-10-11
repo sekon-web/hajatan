@@ -67,8 +67,8 @@ header .acts{display:flex;gap:6px}
 
 <section id="app" class="hidden">
   <header>
-    <div class="top"><h1>📖 Khitanan Zikri</h1><div class="acts"><button class="ghost" id="btnImp">Impor</button><button class="ghost" id="btnOut">Keluar</button></div></div>
-    <input id="q" type="search" placeholder="Cari nama / kampung… (typo boleh)" autocomplete="off">
+    <div class="top"><h1>📖 Kondangan Khitanan Zikri</h1><div class="acts"><button class="ghost" id="btnImp">Impor</button><button class="ghost" id="btnOut">Keluar</button></div></div>
+    <input id="q" type="search" placeholder="Cari nama / Desa… (typo masih bisa dicari)" autocomplete="off">
   </header>
   <div class="sum" id="sum"></div>
   <div class="list" id="list"></div>
@@ -85,7 +85,7 @@ header .acts{display:flex;gap:6px}
     <div><label>Beras (kg)</label><input id="fBeras" type="number" inputmode="decimal" step="0.5" min="0"></div>
     <div><label>Uang (Rp)</label><input id="fUang" type="number" inputmode="numeric" min="0"></div>
   </div>
-  <label>Jajanan / Barang lain</label><input id="fJajan" autocomplete="off" placeholder="mis. 1 dus wafer, 2 kg gula">
+  <label>Jajanan / Barang Lain</label><input id="fJajan" autocomplete="off" placeholder="mis. 1 dus wafer, 2 kg gula">
   <label>Catatan</label><textarea id="fCat" rows="2"></textarea>
   <label>Hajatan</label><input id="fHaj">
   <div class="btns"><button class="sec" id="fCancel">Batal</button><button class="pri" id="fSave">Simpan</button></div>
@@ -98,7 +98,7 @@ header .acts{display:flex;gap:6px}
   <p class="sm">Baris pertama harus berisi judul kolom (nama, alamat, beras, jajanan, uang, ...). <a id="impTpl">Unduh contoh CSV</a></p>
   <input id="impFile" type="file" accept=".csv,.xlsx,.xls,text/csv">
   <div id="impMap" class="hidden"></div>
-  <label>Nama hajatan (dipakai bila kolomnya tidak ada)</label><input id="impHaj">
+  <label>Nama Hajatan (dipakai bila kolomnya tidak ada)</label><input id="impHaj">
   <label style="display:flex;gap:8px;align-items:center;color:var(--tx);font-size:14px"><input type="checkbox" id="impSkip" checked style="width:auto"> Lewati yang sudah ada (nama + alamat sama)</label>
   <div id="impSum" class="hint hidden"></div>
   <div class="btns"><button class="sec" id="impCancel">Batal</button><button class="pri" id="impGo" disabled>Impor</button></div>
