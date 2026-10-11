@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#1f6f50">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Buku Kondangan</title>
+<title>Buku Kondangan Zikri</title>
 <style>
 :root{--g:#1f6f50;--g2:#e3f1ea;--bg:#f4f1ea;--card:#fff;--tx:#1d2420;--mut:#6b756f;--red:#b3261e;--line:#e2ded3}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -57,7 +57,7 @@ header .acts{display:flex;gap:6px}
 <body>
 
 <section id="login" class="hidden">
-  <h1>Buku Kondangan</h1>
+  <h1>Buku Kondangan Zikri</h1>
   <p>Masuk dulu supaya data aman.</p>
   <label>Email</label><input id="em" type="email" autocomplete="username">
   <label>Password</label><input id="pw" type="password" autocomplete="current-password">
@@ -67,7 +67,7 @@ header .acts{display:flex;gap:6px}
 
 <section id="app" class="hidden">
   <header>
-    <div class="top"><h1>📖 Buku Kondangan</h1><div class="acts"><button class="ghost" id="btnImp">Impor</button><button class="ghost" id="btnOut">Keluar</button></div></div>
+    <div class="top"><h1>📖 Khitanan Zikri</h1><div class="acts"><button class="ghost" id="btnImp">Impor</button><button class="ghost" id="btnOut">Keluar</button></div></div>
     <input id="q" type="search" placeholder="Cari nama / kampung… (typo boleh)" autocomplete="off">
   </header>
   <div class="sum" id="sum"></div>
@@ -80,12 +80,12 @@ header .acts{display:flex;gap:6px}
   <h2 id="fTitle">Catat kondangan</h2>
   <label>Nama</label><input id="fNama" autocomplete="off">
   <div id="fHint"></div>
-  <label>Alamat / kampung / RT</label><input id="fAlamat" autocomplete="off">
+  <label>Alamat / Desa / RT</label><input id="fAlamat" autocomplete="off">
   <div class="row">
     <div><label>Beras (kg)</label><input id="fBeras" type="number" inputmode="decimal" step="0.5" min="0"></div>
     <div><label>Uang (Rp)</label><input id="fUang" type="number" inputmode="numeric" min="0"></div>
   </div>
-  <label>Jajanan / barang lain</label><input id="fJajan" autocomplete="off" placeholder="mis. 1 dus wafer, 2 kg gula">
+  <label>Jajanan / Barang lain</label><input id="fJajan" autocomplete="off" placeholder="mis. 1 dus wafer, 2 kg gula">
   <label>Catatan</label><textarea id="fCat" rows="2"></textarea>
   <label>Hajatan</label><input id="fHaj">
   <div class="btns"><button class="sec" id="fCancel">Batal</button><button class="pri" id="fSave">Simpan</button></div>
@@ -230,7 +230,7 @@ function render() {
   if (q) {
     const res = search(q, rows);
     html = res.length ? res.slice(0, 40).map((x) => card(x.r, x.s)).join("")
-      : `<div class="empty">Tidak ketemu “${esc(q)}”.<br>Coba ejaan lain atau nama kampungnya.</div>`;
+      : `<div class="empty">Tidak ketemu “${esc(q)}”.<br>Coba ejaan lain atau nama desanya.</div>`;
   } else {
     html = rows.length ? rows.slice(0, 60).map((r) => card(r)).join("") + (rows.length > 60 ? `<div class="empty">Ketik nama untuk mencari ${rows.length - 60} lainnya…</div>` : "")
       : `<div class="empty">Belum ada catatan.<br>Tekan “＋ Catat”.</div>`;
@@ -268,7 +268,7 @@ function openView(id) {
 let editing = null;
 function openForm(r) {
   editing = r || null;
-  $("#fTitle").textContent = r ? "Ubah catatan" : "Catat kondangan";
+  $("#fTitle").textContent = r ? "Ubah catatan" : "Catat Kondangan";
   $("#fNama").value = r?.nama || ""; $("#fAlamat").value = r?.alamat || "";
   $("#fBeras").value = r ? +r.beras_kg || "" : ""; $("#fUang").value = r ? +r.uang || "" : "";
   $("#fJajan").value = r?.jajanan || ""; $("#fCat").value = r?.catatan || "";
